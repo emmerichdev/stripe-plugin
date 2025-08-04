@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "dev.emmerich"
@@ -32,3 +33,15 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.jar {
+    enabled = false
+}
+
+tasks.shadowJar {
+    archiveClassifier.set("") // Removes the default -all or -shadow classifier
+    archiveBaseName.set("StripePL") // Sets the base name of the JAR file
+    archiveVersion.set(project.version.toString()) // Uses the project version
+}
+
+tasks.build { dependsOn(tasks.shadowJar) }
