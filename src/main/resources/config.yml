@@ -1,5 +1,5 @@
 stripe-api-key: "api-key"
-stripe-webhook-secret: "secret"
+stripe-webhook-secret: "stripe-webhook-secret"
 product-commands:
   prod_EXAMPLE_PRODUCT_ID:
     - "give {player} minecraft:diamond 1"

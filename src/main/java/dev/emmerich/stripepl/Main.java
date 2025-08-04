@@ -12,35 +12,37 @@ import java.util.concurrent.Executors;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandMap;
-import java.lang.reflect.Field;
+import co.aikar.commands.BukkitCommandManager;
 
 public class Main extends JavaPlugin {
 
     private HttpServer server;
-    private final int WEBHOOK_PORT = 8000; // You can change this port
+    private final int WEBHOOK_PORT = 8000;
     private String stripeWebhookSecret;
     private String stripeApiKey;
     private Map<String, List<String>> productCommands;
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
         getLogger().info("StripePL has been enabled!");
 
-        // Load configuration
-        saveDefaultConfig(); // Creates config.yml if it doesn't exist
+        saveDefaultConfig(); // Create config.yml if it doesn't exist
         stripeWebhookSecret = getConfig().getString("stripe-webhook-secret");
         stripeApiKey = getConfig().getString("stripe-api-key");
 
-        if (stripeWebhookSecret == null || stripeWebhookSecret.equals("whsec_YOUR_WEBHOOK_SECRET_HERE")) {
-            getLogger().warning("Stripe webhook secret not configured! Please update config.yml");
+        if (stripeApiKey == null || stripeApiKey.isEmpty() || stripeApiKey.equals("api-key")) {
+            getLogger().severe("Stripe API key is not configured properly. Please update config.yml.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
         }
 
-        if (stripeApiKey != null) {
-            Stripe.apiKey = stripeApiKey;
+        if (stripeWebhookSecret == null || stripeWebhookSecret.isEmpty() || stripeWebhookSecret.equals("secret")) {
+            getLogger().severe("Stripe webhook secret is not configured properly. Please update config.yml.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
         }
+
+        Stripe.apiKey = stripeApiKey;
 
         // Load product commands
         productCommands = new HashMap<>();
@@ -51,37 +53,26 @@ public class Main extends JavaPlugin {
             }
         }
 
-        // Register command programmatically
-        try {
-            final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            bukkitCommandMap.setAccessible(true);
-            CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
+        BukkitCommandManager manager = new BukkitCommandManager(this);
+        manager.registerCommand(new StripeCommand(this));
 
-            StripeCommand stripeCommand = new StripeCommand(this);
-            commandMap.register(this.getName(), stripeCommand);
-            getLogger().info("Command /stripepl registered programmatically.");
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            getLogger().severe("Failed to register command programmatically: " + e.getMessage());
-        }
 
         try {
             server = HttpServer.create(new InetSocketAddress(WEBHOOK_PORT), 0);
             server.createContext("/stripe/webhook", new StripeWebhookHandler(this, stripeWebhookSecret, productCommands));
-            server.setExecutor(Executors.newFixedThreadPool(5)); // Creates a thread pool with 5 threads
+            server.setExecutor(Executors.newFixedThreadPool(5)); // Create a pool of 5 threads
             server.start();
             getLogger().info("Stripe Webhook Listener started on port " + WEBHOOK_PORT);
         } catch (IOException e) {
             getLogger().severe("Failed to start Stripe Webhook Listener: " + e.getMessage());
-            // Optionally disable the plugin if the server can't start
             getServer().getPluginManager().disablePlugin(this);
         }
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
         if (server != null) {
-            server.stop(0); // Stop the server immediately
+            server.stop(0);
             getLogger().info("Stripe Webhook Listener stopped.");
         }
         getLogger().info("StripePL has been disabled!");

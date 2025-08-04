@@ -42,14 +42,10 @@ public class StripeWebhookHandler implements HttpHandler {
             
             String stripeSignature = exchange.getRequestHeaders().getFirst("Stripe-Signature");
 
-            if (webhookSecret == null || webhookSecret.equals("whsec_YOUR_WEBHOOK_SECRET_HERE")) {
-                plugin.getLogger().warning("Stripe webhook secret is not set. Skipping signature verification.");
-                response = "Webhook secret not configured.";
-                statusCode = 400; // Bad Request
-            } else if (stripeSignature == null) {
+            if (stripeSignature == null) {
                 plugin.getLogger().warning("Missing Stripe-Signature header.");
                 response = "Missing Stripe-Signature header.";
-                statusCode = 400; // Bad Request
+                statusCode = 400;
             } else {
                 Event event = Webhook.constructEvent(requestBody, stripeSignature, webhookSecret);
                 plugin.getLogger().info("Received Stripe Event: " + event.getType());
@@ -65,7 +61,7 @@ public class StripeWebhookHandler implements HttpHandler {
 
                             // Fetch line items from the session
                             Map<String, Object> listLineItemsParams = new HashMap<>();
-                            listLineItemsParams.put("limit", 100); // Adjust limit as needed
+                            listLineItemsParams.put("limit", 100);
                             LineItemCollection lineItems = session.listLineItems(listLineItemsParams);
 
                             for (LineItem lineItem : lineItems.getData()) {
@@ -97,11 +93,11 @@ public class StripeWebhookHandler implements HttpHandler {
         } catch (SignatureVerificationException e) {
             plugin.getLogger().warning("Stripe webhook signature verification failed: " + e.getMessage());
             response = "Signature verification failed.";
-            statusCode = 400; // Bad Request
+            statusCode = 400;
         } catch (Exception e) {
             plugin.getLogger().severe("Error processing Stripe webhook: " + e.getMessage());
             response = "Internal server error.";
-            statusCode = 500; // Internal Server Error
+            statusCode = 500;
         } finally {
             exchange.sendResponseHeaders(statusCode, response.length());
             OutputStream os = exchange.getResponseBody();
