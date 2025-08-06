@@ -12,6 +12,12 @@ public class CheckoutItem {
      * @param quantity The quantity of the item to purchase.
      */
     public CheckoutItem(String priceId, long quantity) {
+        if (priceId == null || priceId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Price ID cannot be null or empty.");
+        }
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero.");
+        }
         this.priceId = priceId;
         this.quantity = quantity;
     }

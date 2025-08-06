@@ -1,7 +1,13 @@
-stripe-api-key: "api-key"
-stripe-webhook-secret: "stripe-webhook-secret"
+stripe-api-key: "api-key" # get it from your stripe store (testing or production)
+stripe-webhook-secret: "stripe-webhook-secret" # get it from stripe or stripe cli (for testing)
+
+# these are the commands the server will run when your products are purchased
 product-commands:
-  prod_EXAMPLE_PRODUCT_ID:
+  prod_SnshrV0CJQ5VLL: # replace with a real product id from the products page
     - "give {player} minecraft:diamond 1"
-checkout-example-command-item:
-  price-id: "example"
+
+# this is just meant to be an example command, please use the api to implement checking out properly
+checkout-command-item:
+  price-id: "price_1RsGwGDQBE4OBO7HzBLUmDa9" # replace with price from the products page under pricing where the 3 dots are
+  success-url: "https://example.com/success"
+  cancel-url: "https://example.com/cancel"

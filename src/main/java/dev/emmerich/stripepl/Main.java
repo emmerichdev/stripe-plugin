@@ -1,7 +1,6 @@
 package dev.emmerich.stripepl;
 
 import com.sun.net.httpserver.HttpServer;
-import dev.emmerich.stripepl.api.CheckoutSessionManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.ConfigurationSection;
 import com.stripe.Stripe;
@@ -83,9 +82,5 @@ public class Main extends JavaPlugin {
 
     public static Main getInstance() {
         return instance;
-    }
-
-    public static CheckoutSessionManager getCheckoutSessionManager() {
-        return new CheckoutSessionManager();
     }
 }

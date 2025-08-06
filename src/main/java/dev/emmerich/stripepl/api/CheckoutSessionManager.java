@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 public class CheckoutSessionManager {
 
+    private CheckoutSessionManager() {}
+
     /**
      * Creates a new Stripe Checkout Session for the given player and items.
      *
@@ -21,6 +23,19 @@ public class CheckoutSessionManager {
      * @throws StripeException If there is an error creating the checkout session.
      */
     public static Session createCheckoutSession(Player player, List<CheckoutItem> items, String successUrl, String cancelUrl) throws StripeException {
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null.");
+        }
+        if (items == null || items.isEmpty()) {
+            throw new IllegalArgumentException("Items list cannot be null or empty.");
+        }
+        if (successUrl == null || successUrl.trim().isEmpty()) {
+            throw new IllegalArgumentException("Success URL cannot be null or empty.");
+        }
+        if (cancelUrl == null || cancelUrl.trim().isEmpty()) {
+            throw new IllegalArgumentException("Cancel URL cannot be null or empty.");
+        }
+
         List<SessionCreateParams.LineItem> lineItems = items.stream()
                 .map(item -> SessionCreateParams.LineItem.builder()
                         .setPrice(item.getPriceId())

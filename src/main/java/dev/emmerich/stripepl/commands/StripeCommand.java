@@ -46,15 +46,23 @@ public class StripeCommand extends BaseCommand {
     public void onCheckout(CommandSender sender) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            String priceId = plugin.getConfig().getString("checkout-example-command-item.price-id");
-            if (priceId == null || priceId.isEmpty() || priceId.equals("example")) {
+            String priceId = plugin.getConfig().getString("checkout-command-item.price-id");
+            String successUrl = plugin.getConfig().getString("checkout-command-item.success-url");
+            String cancelUrl = plugin.getConfig().getString("checkout-command-item.cancel-url");
+
+            if (priceId == null || priceId.isEmpty() || priceId.equals("price_1Pb2L4RxH3d5a2zmsu33mIEg")) {
                 player.sendMessage("The checkout item is not configured correctly. Please contact an administrator.");
+                return;
+            }
+
+            if (successUrl == null || successUrl.isEmpty() || cancelUrl == null || cancelUrl.isEmpty()) {
+                player.sendMessage("The success and cancel URLs are not configured correctly. Please contact an administrator.");
                 return;
             }
 
             CheckoutItem item = new CheckoutItem(priceId, 1);
             try {
-                com.stripe.model.checkout.Session session = CheckoutSessionManager.createCheckoutSession(player, Collections.singletonList(item), "https://example.com/success", "https://example.com/cancel");
+                com.stripe.model.checkout.Session session = CheckoutSessionManager.createCheckoutSession(player, Collections.singletonList(item), successUrl, cancelUrl);
                 player.sendMessage("Click here to checkout: " + session.getUrl());
             } catch (StripeException e) {
                 player.sendMessage("Error creating checkout session: " + e.getMessage());
