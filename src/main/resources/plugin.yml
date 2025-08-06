@@ -1,6 +1,7 @@
 name: StripePL
-version: 1.0-SNAPSHOT
+version: 1.5-SNAPSHOT
 main: dev.emmerich.stripepl.Main
 api-version: 1.8
 author: emmerichdev
 description: Allows in-game interaction with Stripe for payments.
+website: https://emmerichbrowne.com/
