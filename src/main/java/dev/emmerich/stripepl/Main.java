@@ -1,6 +1,7 @@
 package dev.emmerich.stripepl;
 
 import com.sun.net.httpserver.HttpServer;
+import dev.emmerich.stripepl.api.CheckoutSessionManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.ConfigurationSection;
 import com.stripe.Stripe;
@@ -16,6 +17,7 @@ import co.aikar.commands.BukkitCommandManager;
 
 public class Main extends JavaPlugin {
 
+    private static Main instance;
     private HttpServer server;
     private final int WEBHOOK_PORT = 8000;
     private String stripeWebhookSecret;
@@ -24,6 +26,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        instance = this;
         getLogger().info("StripePL has been enabled!");
 
         saveDefaultConfig(); // Create config.yml if it doesn't exist
@@ -76,5 +79,13 @@ public class Main extends JavaPlugin {
             getLogger().info("Stripe Webhook Listener stopped.");
         }
         getLogger().info("StripePL has been disabled!");
+    }
+
+    public static Main getInstance() {
+        return instance;
+    }
+
+    public static CheckoutSessionManager getCheckoutSessionManager() {
+        return new CheckoutSessionManager();
     }
 }
