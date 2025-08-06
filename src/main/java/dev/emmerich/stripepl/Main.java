@@ -16,6 +16,7 @@ import co.aikar.commands.BukkitCommandManager;
 
 public class Main extends JavaPlugin {
 
+    private static Main instance;
     private HttpServer server;
     private final int WEBHOOK_PORT = 8000;
     private String stripeWebhookSecret;
@@ -24,6 +25,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        instance = this;
         getLogger().info("StripePL has been enabled!");
 
         saveDefaultConfig(); // Create config.yml if it doesn't exist
@@ -76,5 +78,9 @@ public class Main extends JavaPlugin {
             getLogger().info("Stripe Webhook Listener stopped.");
         }
         getLogger().info("StripePL has been disabled!");
+    }
+
+    public static Main getInstance() {
+        return instance;
     }
 }
