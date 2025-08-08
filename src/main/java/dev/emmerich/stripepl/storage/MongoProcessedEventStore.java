@@ -63,5 +63,3 @@ public class MongoProcessedEventStore implements ProcessedEventStore {
         try { client.close(); } catch (Exception ignored) {}
     }
 }
-
-

@@ -16,5 +16,3 @@ public class HealthHandler implements HttpHandler {
         }
     }
 }
-
-

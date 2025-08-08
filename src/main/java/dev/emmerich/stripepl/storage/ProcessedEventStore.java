@@ -5,5 +5,3 @@ public interface ProcessedEventStore {
     void markProcessed(String eventId);
     default void close() {}
 }
-
-
