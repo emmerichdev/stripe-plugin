@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "dev.emmerich"
-version = "1.5-SNAPSHOT"
+version = "2.0-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
