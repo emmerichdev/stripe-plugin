@@ -6,6 +6,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import com.stripe.Stripe;
 import dev.emmerich.stripepl.commands.StripeCommand;
 import dev.emmerich.stripepl.webhook.StripeWebhookHandler;
+import dev.emmerich.stripepl.storage.ProcessedEventStore;
+import dev.emmerich.stripepl.storage.MongoProcessedEventStore;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
@@ -18,6 +20,8 @@ public class Main extends JavaPlugin {
 
     private static Main instance;
     private HttpServer server;
+    private Map<String, List<String>> productCommands;
+    private ProcessedEventStore processedEventStore;
 
     @Override
     public void onEnable() {
@@ -43,12 +47,25 @@ public class Main extends JavaPlugin {
         Stripe.apiKey = stripeApiKey;
 
         // Load product commands
-        Map<String, List<String>> productCommands = new HashMap<>();
+        productCommands = new HashMap<>();
         ConfigurationSection productCommandsSection = getConfig().getConfigurationSection("product-commands");
         if (productCommandsSection != null) {
             for (String productId : productCommandsSection.getKeys(false)) {
                 productCommands.put(productId, productCommandsSection.getStringList(productId));
             }
+        }
+
+        // Initialize processed event store (Mongo)
+        try {
+            String uri = getConfig().getString("storage.mongo.uri", "mongodb://localhost:27017");
+            String db = getConfig().getString("storage.mongo.database", "stripepl");
+            String coll = getConfig().getString("storage.mongo.collection", "processed_events");
+            long ttlDays = getConfig().getLong("storage.mongo.ttlDays", 30);
+            processedEventStore = new MongoProcessedEventStore(this, uri, db, coll, ttlDays);
+        } catch (Exception e) {
+            getLogger().severe("Failed to initialize storage: " + e.getMessage());
+            getServer().getPluginManager().disablePlugin(this);
+            return;
         }
 
         BukkitCommandManager manager = new BukkitCommandManager(this);
@@ -58,7 +75,7 @@ public class Main extends JavaPlugin {
         try {
             int WEBHOOK_PORT = 8000;
             server = HttpServer.create(new InetSocketAddress(WEBHOOK_PORT), 0);
-            server.createContext("/stripe/webhook", new StripeWebhookHandler(this, stripeWebhookSecret, productCommands));
+            server.createContext("/stripe/webhook", new StripeWebhookHandler(this, stripeWebhookSecret, productCommands, processedEventStore));
             server.setExecutor(Executors.newFixedThreadPool(5)); // Create a pool of 5 threads
             server.start();
             getLogger().info("Stripe Webhook Listener started on port " + WEBHOOK_PORT);
@@ -79,5 +96,13 @@ public class Main extends JavaPlugin {
 
     public static Main getInstance() {
         return instance;
+    }
+
+    public Map<String, List<String>> getProductCommands() {
+        return productCommands;
+    }
+
+    public String getStorageDescription() {
+        return processedEventStore != null ? processedEventStore.getClass().getSimpleName() : "none";
     }
 }

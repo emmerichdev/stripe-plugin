@@ -32,7 +32,7 @@ public class GrantDispatcher {
         for (String cmd : commandsToRun) {
             String finalCommand = cmd
                     .replace("{player}", playerName != null ? playerName : "")
-                    .replace("{product_id}", productId != null ? productId : "")
+                    .replace("{product_id}", productId)
                     .replace("{qty}", String.valueOf(quantity))
                     .replace("{event_id}", eventId != null ? eventId : "");
             plugin.getLogger().info("Dispatching command: " + finalCommand);
