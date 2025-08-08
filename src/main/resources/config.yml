@@ -1,6 +1,19 @@
 stripe-api-key: "api-key" # get it from your stripe store (testing or production)
 stripe-webhook-secret: "stripe-webhook-secret" # get it from stripe or stripe cli (for testing)
 
+# embedded webhook listener
+webhook:
+  port: 8000
+  path: "/stripe/webhook"
+
+# storage settings (MongoDB required)
+storage:
+  mongo:
+    uri: "mongodb://localhost:27017"
+    database: "stripepl"
+    collection: "processed_events"
+    ttlDays: 30
+
 # these are the commands the server will run when your products are purchased
 product-commands:
   prod_SnshrV0CJQ5VLL: # replace with a real product id from the products page

@@ -30,6 +30,7 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
     implementation("com.stripe:stripe-java:29.4.0")
     implementation("co.aikar:acf-bukkit:0.5.1-SNAPSHOT")
+    implementation("org.mongodb:mongodb-driver-sync:4.11.1")
 }
 
 tasks.test {
