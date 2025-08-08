@@ -31,7 +31,6 @@ public class MongoProcessedEventStore implements ProcessedEventStore {
         MongoDatabase db = client.getDatabase(databaseName);
         this.collection = db.getCollection(collectionName);
 
-        // Ensure unique index on eventId and optional TTL on createdAt
         collection.createIndex(Indexes.ascending("eventId"), new IndexOptions().unique(true));
         if (ttlDays > 0) {
             collection.createIndex(Indexes.ascending("createdAt"), new IndexOptions().expireAfter(ttlDays, TimeUnit.DAYS));

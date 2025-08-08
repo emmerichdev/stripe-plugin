@@ -6,6 +6,7 @@ import com.stripe.exception.StripeException;
 import dev.emmerich.stripepl.api.CheckoutItem;
 import dev.emmerich.stripepl.Main;
 import dev.emmerich.stripepl.api.CheckoutSessionManager;
+import dev.emmerich.stripepl.service.GrantDispatcher;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -88,7 +89,7 @@ public class StripeCommand extends BaseCommand {
         int qty = quantity == null ? 1 : Math.max(1, quantity);
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             plugin.getLogger().info("Simulating grant for player=" + player.getName() + ", productId=" + productId + ", qty=" + qty);
-            dev.emmerich.stripepl.service.GrantDispatcher.dispatchForPurchase(
+            GrantDispatcher.dispatchForPurchase(
                     plugin,
                     plugin.getProductCommands(),
                     player.getName(),
